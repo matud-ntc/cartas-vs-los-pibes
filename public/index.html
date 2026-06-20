@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b0b0d" />
+  <title>Cartas vs los Pibes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Inicio -->
+    <section id="screen-home" class="screen active">
+      <div class="hero">
+        <div class="hero-cards">
+          <span class="hc hc-black">vs</span>
+          <span class="hc hc-white">los pibes</span>
+        </div>
+        <h1 class="title">Cartas vs<br>los Pibes</h1>
+        <p class="subtitle">Un juego de fiesta para gente terrible.<br>Cada uno con su celu y su peor idea.</p>
+      </div>
+
+      <div class="card">
+        <label>Tu nombre</label>
+        <input id="input-name" type="text" placeholder="Como te dicen" maxlength="20" autocomplete="off" />
+        <button id="btn-create" class="btn btn-primary">Armar partida</button>
+        <div class="divider"><span>o entrá a una</span></div>
+        <label>Código de sala</label>
+        <input id="input-code" type="text" placeholder="ABCD" maxlength="4" autocomplete="off" class="code-input" />
+        <button id="btn-join" class="btn">Entrar</button>
+      </div>
+      <p id="home-error" class="error"></p>
+    </section>
+
+    <!-- Lobby -->
+    <section id="screen-lobby" class="screen">
+      <div class="room-head">
+        <div>
+          <span class="room-label">SALA</span>
+          <span id="room-code" class="room-code">----</span>
+        </div>
+        <button id="btn-share" class="btn-mini">Compartir sala</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">En la mesa <span id="player-count" class="badge">0</span></h2>
+        <ul id="player-list" class="player-list"></ul>
+        <p class="hint">Mínimo 3 jugadores para arrancar.</p>
+      </div>
+
+      <div class="card host-only">
+        <h2 class="card-title">Ajustes</h2>
+        <label>Puntos para ganar</label>
+        <input id="input-target" type="number" min="1" max="20" value="5" inputmode="numeric" />
+      </div>
+
+      <div class="card no-host" style="display:none">
+        <p class="hint"><b id="host-name">Quien armó la sala</b> arranca cuando estén todos. Aguantá...</p>
+      </div>
+
+      <button id="btn-start" class="btn btn-primary host-only">Empezar partida</button>
+      <button id="btn-leave" class="btn btn-ghost">Salir de la sala</button>
+      <p id="lobby-error" class="error"></p>
+    </section>
+
+    <!-- Juego -->
+    <section id="screen-game" class="screen">
+      <div class="game-top">
+        <button id="btn-scores" class="btn-mini">Puntajes</button>
+        <span id="round-role" class="round-role">—</span>
+      </div>
+
+      <div id="black-card" class="black-card">
+        <p id="black-text">—</p>
+        <span id="black-pick" class="pick-badge" style="display:none">JUGÁ 2</span>
+      </div>
+
+      <!-- Estado / instrucción -->
+      <p id="game-status" class="game-status"></p>
+
+      <!-- Zona del juez: combinaciones para elegir -->
+      <div id="judge-area" class="judge-area" style="display:none"></div>
+
+      <!-- Resultado de la ronda -->
+      <div id="result-area" class="result-area" style="display:none">
+        <p class="result-label">Ganó la ronda</p>
+        <h2 id="result-winner" class="result-winner">—</h2>
+        <div id="result-combo" class="result-combo"></div>
+        <button id="btn-next" class="btn btn-primary host-judge-only">Siguiente ronda</button>
+      </div>
+
+      <!-- Mano del jugador -->
+      <div id="hand-area" class="hand-area">
+        <div id="hand" class="hand"></div>
+        <button id="btn-play" class="btn btn-primary" disabled>Jugar carta</button>
+      </div>
+
+      <button id="btn-reset" class="btn btn-ghost host-only">Reiniciar partida</button>
+    </section>
+
+  </div>
+
+  <!-- Modal puntajes -->
+  <div id="scores-modal" class="modal" style="display:none">
+    <div class="modal-inner">
+      <h2 class="card-title">Puntajes</h2>
+      <ul id="scores-list" class="scores-list"></ul>
+      <button id="btn-close-scores" class="btn">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal fin de partida -->
+  <div id="over-modal" class="modal" style="display:none">
+    <div class="modal-inner">
+      <p class="result-label">Ganador de la partida</p>
+      <h1 id="over-winner" class="over-winner">—</h1>
+      <ul id="over-list" class="scores-list"></ul>
+      <button id="btn-over-close" class="btn btn-primary">De una</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

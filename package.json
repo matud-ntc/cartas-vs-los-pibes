@@ -1,0 +1,14 @@
+{
+  "name": "cartas-vs-los-pibes",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Juego de fiesta de cartas negras y blancas, multijugador por sala.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

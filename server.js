@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import os from "os";
+import fs from "fs";
 import { BLACK, WHITE } from "./cards.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -354,6 +355,53 @@ function removePlayer(room, playerId) {
   }
   broadcast(room);
 }
+
+// ---------- Persistencia: sobrevive a que la máquina se duerma ----------
+const DATA_FILE = process.env.DATA_FILE || join(__dirname, "rooms.json");
+function dumpRooms() {
+  const out = {};
+  for (const [code, r] of rooms) {
+    out[code] = {
+      code: r.code, hostId: r.hostId, order: r.order, started: r.started,
+      phase: r.phase, target: r.target, judgeIdx: r.judgeIdx,
+      blackDeck: r.blackDeck, whiteDeck: r.whiteDeck, black: r.black,
+      reveal: r.reveal, lastResult: r.lastResult,
+      players: [...r.players.values()].map((p) => ({ id: p.id, name: p.name, hand: p.hand, score: p.score })),
+      subs: [...r.subs.entries()],
+    };
+  }
+  return out;
+}
+function saveNow() {
+  try { fs.writeFileSync(DATA_FILE, JSON.stringify(dumpRooms())); } catch (e) {}
+}
+function loadRooms() {
+  let raw;
+  try { raw = JSON.parse(fs.readFileSync(DATA_FILE, "utf8")); } catch (e) { return; }
+  for (const code in raw) {
+    const r = raw[code];
+    const room = newRoom(code, r.hostId);
+    room.order = r.order || [];
+    room.started = !!r.started;
+    room.phase = r.phase || "lobby";
+    room.target = r.target || DEFAULT_TARGET;
+    room.judgeIdx = r.judgeIdx || 0;
+    room.blackDeck = r.blackDeck || [];
+    room.whiteDeck = r.whiteDeck || [];
+    room.black = r.black || null;
+    room.reveal = r.reveal || [];
+    room.lastResult = r.lastResult || null;
+    room.players = new Map();
+    for (const p of r.players || []) room.players.set(p.id, { id: p.id, name: p.name, socketId: null, connected: false, hand: p.hand || [], score: p.score || 0 });
+    room.subs = new Map(r.subs || []);
+    rooms.set(code, room);
+  }
+  if (rooms.size) console.log(`Restauradas ${rooms.size} salas desde disco`);
+}
+loadRooms();
+setInterval(saveNow, 3000);
+process.on("SIGTERM", () => { saveNow(); process.exit(0); });
+process.on("SIGINT", () => { saveNow(); process.exit(0); });
 
 httpServer.listen(PORT, "0.0.0.0", () => {
   const nets = os.networkInterfaces();
